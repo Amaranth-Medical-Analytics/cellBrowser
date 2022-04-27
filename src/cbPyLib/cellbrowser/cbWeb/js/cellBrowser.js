@@ -4527,10 +4527,12 @@ var cellbrowser = function() {
     }
 
     function loadCoordSet(coordIdx) {
-        /* load coordinates and color by meta data */
-        var newRadius = db.conf.coords[coordIdx].radius;
-        var colorOnMetaField = db.conf.coords[coordIdx].colorOnMeta;
-
+        /* load coordinates, color and labels by meta data */
+        let newRadius = db.conf.coords[coordIdx].radius;
+        let colorOnMetaField = db.conf.coords[coordIdx].colorOnMeta;
+        let fieldId = parseInt($('#tpLabelCombo').val().split("_")[1]);
+        let fieldName = db.getMetaFields()[fieldId].name;
+        
         db.loadCoords(coordIdx,
                 function(coords, info, clusterMids) {
                     gotCoords(coords,info,clusterMids, newRadius);
@@ -4538,6 +4540,10 @@ var cellbrowser = function() {
                         colorByMetaField(colorOnMetaField);
                     else
                         renderer.drawDots();
+                    // Reset labels
+                    if (fieldName !== undefined && fieldName !== null){
+                        setLabelField(fieldName);
+                    }
                 },
                 onProgress);
     }
