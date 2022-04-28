@@ -7093,7 +7093,15 @@ var cellbrowser = function() {
         var sortOpt = {};
         //if (doDescSort)
             //sortOpt.descending=true;
-        new Tablesort(document.getElementById('tpMarkerTable'));
+        
+        // Very hacky solution - ideally have a unique id for table in each tab, and find 
+        // tab's table when iterating over tabs.        
+        let tables = document.getElementsByClassName('table');
+        for (let i=0; i<tables.length; i++){
+            new Tablesort(tables[i]);
+        }
+        //new Tablesort(document.getElementById('tpMarkerTable'));
+        
         $(".tpLoadGeneLink").on("click", onMarkerGeneClick);
         activateTooltip(".link");
 
