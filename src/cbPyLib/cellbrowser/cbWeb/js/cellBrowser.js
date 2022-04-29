@@ -4554,7 +4554,6 @@ var cellbrowser = function() {
         loadCoordSet(coordIdx);
         changeUrl({"layout":coordIdx, "zoom":null});
         renderer.coordIdx = coordIdx;
-        setLabelField(fieldName);
         // remove the focus from the combo box
         removeFocus();
     }
@@ -6635,11 +6634,16 @@ var cellbrowser = function() {
             return;
         if (!renderer.childPlot && !renderer.parentPlot)
             return;
+        
         if (!renderer.isMain) {
+            // right renderer selected
             // make sure the left renderer is the active one
-            renderer.childPlot.activatePlot();
+            let mainplot = renderer.childPlot;
+            mainplot.activatePlot();
+            mainplot.unsplit(parent=false);
+        } else {
+            renderer.unsplit();
         }
-        renderer.unsplit();
         $("#tpSplitMenuEntry").text("Split Screen");
     }
 
