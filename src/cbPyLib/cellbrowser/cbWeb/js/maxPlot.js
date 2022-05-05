@@ -2171,9 +2171,8 @@ function MaxPlot(div, top, left, width, height, args) {
         plot2.port = self.port;
         plot2.selCells = self.selCells;
 
-        //plot2.coords = Object.assign({}, self.coords); // = shallow copy
-        plot2.coords = self.coords;
-
+        plot2.coords = Object.assign({}, self.coords); // = shallow copy
+        
         plot2.col = {};
         plot2.col.pal = self.col.pal;
         plot2.col.arr = self.col.arr;
@@ -2205,20 +2204,29 @@ function MaxPlot(div, top, left, width, height, args) {
         return plot2;
     };
 
-    this.unsplit = function() {
+    this.unsplit = function(parent=true) {
         /* remove the connected non-active renderer */
-        //var canvWidth = window.innerWidth - canvLeft - legendBarWidth;
-        var otherRend = self.childPlot;
+        let otherRend = self.childPlot;
         self.childPlot = undefined;
-        if (!otherRend) {
-            otherRend = self.parentPlot;
-            self.parentPlot = undefined;
+        if (parent === true) {
+            console.log('Selected parent plot')
+            self.setSize(self.width*2, self.height, false);
+            otherRend.div.remove();
+            self.canvas.style["border"] = "none";
+        } else {
+            console.log('selected child plot')
+            
+            self.port = otherRend.port;
+            self.selCells = otherRend.selCells;
+            self.coords = Object.assign({}, otherRend.coords); // = shallow copy
+            self.col = {};
+            self.col.pal = otherRend.col.pal;
+            self.col.arr = otherRend.col.arr;
+            
+            self.setSize(self.width*2, self.height, false);
+            otherRend.div.remove();
+            self.canvas.style["border"] = "none";
         }
-        self.setSize(self.width*2, self.height, false);
-
-
-        otherRend.div.remove();
-        self.canvas.style["border"] = "none";
         return;
     }
 

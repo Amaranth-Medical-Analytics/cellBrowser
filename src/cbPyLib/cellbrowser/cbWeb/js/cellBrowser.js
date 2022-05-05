@@ -4527,10 +4527,12 @@ var cellbrowser = function() {
     }
 
     function loadCoordSet(coordIdx) {
-        /* load coordinates and color by meta data */
-        var newRadius = db.conf.coords[coordIdx].radius;
-        var colorOnMetaField = db.conf.coords[coordIdx].colorOnMeta;
-
+        /* load coordinates, color and labels by meta data */
+        let newRadius = db.conf.coords[coordIdx].radius;
+        let colorOnMetaField = db.conf.coords[coordIdx].colorOnMeta;
+        let fieldId = parseInt($('#tpLabelCombo').val().split("_")[1]);
+        let fieldName = db.getMetaFields()[fieldId].name;
+        
         db.loadCoords(coordIdx,
                 function(coords, info, clusterMids) {
                     gotCoords(coords,info,clusterMids, newRadius);
@@ -4538,6 +4540,10 @@ var cellbrowser = function() {
                         colorByMetaField(colorOnMetaField);
                     else
                         renderer.drawDots();
+                    // Reset labels
+                    if (fieldName !== undefined && fieldName !== null){
+                        setLabelField(fieldName);
+                    }
                 },
                 onProgress);
     }
@@ -4548,7 +4554,6 @@ var cellbrowser = function() {
         loadCoordSet(coordIdx);
         changeUrl({"layout":coordIdx, "zoom":null});
         renderer.coordIdx = coordIdx;
-        setLabelField(fieldName);
         // remove the focus from the combo box
         removeFocus();
     }
@@ -6629,11 +6634,16 @@ var cellbrowser = function() {
             return;
         if (!renderer.childPlot && !renderer.parentPlot)
             return;
+        
         if (!renderer.isMain) {
+            // right renderer selected
             // make sure the left renderer is the active one
-            renderer.childPlot.activatePlot();
+            let mainplot = renderer.childPlot;
+            mainplot.activatePlot();
+            mainplot.unsplit(parent=false);
+        } else {
+            renderer.unsplit();
         }
-        renderer.unsplit();
         $("#tpSplitMenuEntry").text("Split Screen");
     }
 
@@ -7093,7 +7103,15 @@ var cellbrowser = function() {
         var sortOpt = {};
         //if (doDescSort)
             //sortOpt.descending=true;
-        new Tablesort(document.getElementById('tpMarkerTable'));
+        
+        // Very hacky solution - ideally have a unique id for table in each tab, and find 
+        // tab's table when iterating over tabs.        
+        let tables = document.getElementsByClassName('table');
+        for (let i=0; i<tables.length; i++){
+            new Tablesort(tables[i]);
+        }
+        //new Tablesort(document.getElementById('tpMarkerTable'));
+        
         $(".tpLoadGeneLink").on("click", onMarkerGeneClick);
         activateTooltip(".link");
 
